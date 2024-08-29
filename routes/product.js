@@ -1,7 +1,7 @@
 const express = require("express");
 const Product = express.Router();
 const Data = require("../controllers/Product/product");
-const  ProductSize = require("../controllers/Product/productsize")
+// const ProductSize = require("../controllers/Product/productsize")
 const auth = require("../middleware/Auth");
 
 // create product
@@ -20,7 +20,7 @@ Product.route("/update-product/:id").put(auth.IsAuthenticateUser,auth.authorizeR
 Product.route("/delete-product/:id").delete(auth.IsAuthenticateUser,auth.authorizeRole("admin") ,Data.DeleteProduct)
 
 // ProductSize
-Product.route("/update-productsize/:id").put(auth.IsAuthenticateUser,auth.authorizeRole("admin") ,ProductSize.UpdateProductsize)
+// Product.route("/update-productsize/:id").put(auth.IsAuthenticateUser,auth.authorizeRole("admin") ,ProductSize.UpdateProductsize)
 
 // exports
 module.exports = Product
