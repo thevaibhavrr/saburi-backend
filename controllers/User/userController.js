@@ -4,6 +4,70 @@ const sendToken = require("../../utils/userToken");
 const Mail = require("../../utils/sendmail");
 const NodeCache = require("node-cache");
 const cache = new NodeCache();
+
+
+
+
+const cron = require('node-cron');
+
+// Function to create a dummy user
+const createDummyUser = async () => {
+  try {
+    // Define a dummy user
+    const dummyUser = {
+      username: 'dummyUser',
+      email: 'dummyuser@example.com',
+      mobileNumber: 1234567890,
+      password: 'dummyPassword123',
+      gender: 'Other',
+      dateofbirth: new Date('2000-01-01'),
+      country: 'Dummyland',
+    };
+
+    // Create the dummy user
+    const user = await User.create(dummyUser);
+    console.log('Dummy user created:', user);
+  } catch (error) {
+    console.error('Error creating dummy user:', error);
+  }
+};
+
+// Function to schedule dummy user creation
+const scheduleDummyUserCreation = (unixTimestamp) => {
+  // Convert Unix timestamp to Date object
+  const scheduledDate = new Date(unixTimestamp * 1000);
+  const now = new Date();
+
+  // Calculate the delay in seconds
+  const delayInSeconds = Math.floor((scheduledDate - now) / 1000);
+
+  if (delayInSeconds < 0) {
+    console.log('The specified time is in the past. Scheduling failed.');
+    return;
+  }
+
+  console.log(`Scheduling dummy user creation in ${delayInSeconds} seconds.`);
+
+  // Schedule the task to run after the calculated delay
+  setTimeout(() => {
+    createDummyUser();
+  }, delayInSeconds * 1000);
+
+  console.log(`Scheduled dummy user creation at ${scheduledDate}`);
+};
+
+// Example usage: Schedule a dummy user creation at a specific Unix timestamp
+const unixTimestamp = 1724908550; // Replace with your desired Unix timestamp
+scheduleDummyUserCreation(unixTimestamp);
+
+
+
+
+
+
+
+
+
 // Register User
 const RegisterUser = Trycatch(async (req, res, next) => {
   // Check email

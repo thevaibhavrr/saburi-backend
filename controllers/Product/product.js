@@ -1,45 +1,78 @@
 const Product = require("../../model/Product/product");
+const ProductSize = require("../../model/Product/productsize");
 const Trycatch = require("../../middleware/Trycatch");
 const ApiFeatures = require("../../utils/apifeature");
 const NodeCache = require("node-cache");
 const cache = new NodeCache();
 
-// create product
-const CreateProduct = Trycatch(async (req, res, next) => {
-  const { price, discountPercentage, ProductSize } = req.body;
-  if (req.body.discountPercentage) {
-    // Calculate the discounted price
-    const discountedPrice =
-      price - price * (discountPercentage / 100).toFixed(2);
 
-    const product = await Product.create({
+const CreateProduct = Trycatch(async (req, res, next) => {
+  const { price, discountPercentage, productSizes } = req.body;
+  
+  let product;
+  if (discountPercentage) {
+    const discountedPrice = (price - price * (discountPercentage / 100)).toFixed(2);
+    product = await Product.create({
       ...req.body,
       PriceAfterDiscount: discountedPrice,
     });
-    // for (let Sizeproduct of ProductSize) {
-    //   await ProductSize.create({
-    //     ...Sizeproduct,
-    //     productId: product._id,
-    //   });
-    // }
-    res.status(201).json({
-      success: true,
-      product,
-    });
   } else {
-    const product = await Product.create(req.body);
-    // for (let Sizeproduct of ProductSize) {
-    //   await ProductSize.create({
-    //     ...Sizeproduct,
-    //     productId: product._id,
-    //   });
-    // }
-    res.status(201).json({
-      success: true,
-      product,
-    });
+    product = await Product.create(req.body);
   }
+  if (productSizes && productSizes.length > 0) {
+    for (let size of productSizes) {
+      const productSize = await ProductSize.create({
+        ...size,
+        productId: product._id,
+      });
+      console.log(size)
+
+      console.log(productSize)
+      
+    }
+  }
+
+  res.status(201).json({
+    success: true,
+    product,
+  });
 });
+// create product
+// const CreateProduct = Trycatch(async (req, res, next) => {
+//   const { price, discountPercentage, ProductSize } = req.body;
+//   if (req.body.discountPercentage) {
+//     // Calculate the discounted price
+//     const discountedPrice =
+//       price - price * (discountPercentage / 100).toFixed(2);
+
+//     const product = await Product.create({
+//       ...req.body,
+//       PriceAfterDiscount: discountedPrice,
+//     });
+//     // for (let Sizeproduct of ProductSize) {
+//     //   await ProductSize.create({
+//     //     ...Sizeproduct,
+//     //     productId: product._id,
+//     //   }); 
+//     // }
+//     res.status(201).json({
+//       success: true,
+//       product,
+//     });
+//   } else {
+//     const product = await Product.create(req.body);
+//     // for (let Sizeproduct of ProductSize) {
+//     //   await ProductSize.create({
+//     //     ...Sizeproduct,
+//     //     productId: product._id,
+//     //   });
+//     // }
+//     res.status(201).json({
+//       success: true,
+//       product,
+//     });
+//   }
+// });
 const GetAllProducts = Trycatch(async (req, res, next) => {
   const perPageData = req.query.perPage;
   let { minPrice, maxPrice } = req.query;
@@ -352,6 +385,10 @@ const GetAllProductsWorking = Trycatch(async (req, res, next) => {
 // get single product
 const GetSingleProduct = Trycatch(async (req, res, next) => {
   const product = await Product.findById(req.params.id).populate("category");
+  
+  // find all size 
+  const sizes = await ProductSize.find({ productId: product._id });
+
   if (!product) {
     return res.status(404).json({
       success: false,
@@ -360,7 +397,8 @@ const GetSingleProduct = Trycatch(async (req, res, next) => {
   }
   res.status(200).json({
     success: true,
-    product,
+    product, 
+    sizes
   });
 });
 
