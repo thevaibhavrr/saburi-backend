@@ -1,7 +1,7 @@
 const express = require("express");
 const Product = express.Router();
 const Data = require("../controllers/Product/product");
-const  ProductSize = require("../controllers/Product/productsize.js")
+const  ProductSize = require("../controllers/Product/productsize")
 const auth = require("../middleware/Auth");
 
 // create product
