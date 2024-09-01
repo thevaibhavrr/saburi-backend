@@ -64,14 +64,16 @@ const cache = new NodeCache({ stdTTL: 600 }); // Cache with 600 seconds (10 minu
 
 const CreateBanner = TryCatch(async (req, res, next) => {
   const banner = await Banner.create(req.body);
+  cache.del("allBanners");
   res.status(201).json({
     success: true,
-    banner,
+    banner,   
   });
   // No need to cache created banners
 });
 
 const GetAllBanner = TryCatch(async (req, res, next) => {
+
   const cachedBanners = cache.get("allBanners");
   if (cachedBanners) {
     return res.status(200).json({
