@@ -5,86 +5,22 @@ const Mail = require("../../utils/sendmail");
 const NodeCache = require("node-cache");
 const cache = new NodeCache();
 
-
-
-
-const cron = require('node-cron');
-
-// Function to create a dummy user
-const createDummyUser = async () => {
-  try {
-    // Define a dummy user
-    const dummyUser = {
-      username: 'dummyUser',
-      email: 'dummyuser@example.com',
-      mobileNumber: 1234567890,
-      password: 'dummyPassword123',
-      gender: 'Other',
-      dateofbirth: new Date('2000-01-01'),
-      country: 'Dummyland',
-    };
-
-    // Create the dummy user
-    const user = await User.create(dummyUser);
-    console.log('Dummy user created:', user);
-  } catch (error) {
-    console.error('Error creating dummy user:', error);
-  }
-};
-
-// Function to schedule dummy user creation
-const scheduleDummyUserCreation = (unixTimestamp) => {
-  // Convert Unix timestamp to Date object
-  const scheduledDate = new Date(unixTimestamp * 1000);
-  const now = new Date();
-
-  // Calculate the delay in seconds
-  const delayInSeconds = Math.floor((scheduledDate - now) / 1000);
-
-  if (delayInSeconds < 0) {
-    console.log('The specified time is in the past. Scheduling failed.');
-    return;
-  }
-
-  console.log(`Scheduling dummy user creation in ${delayInSeconds} seconds.`);
-
-  // Schedule the task to run after the calculated delay
-  setTimeout(() => {
-    createDummyUser();
-  }, delayInSeconds * 1000);
-
-  console.log(`Scheduled dummy user creation at ${scheduledDate}`);
-};
-
-// Example usage: Schedule a dummy user creation at a specific Unix timestamp
-const unixTimestamp = 1724908790; // Replace with your desired Unix timestamp
-scheduleDummyUserCreation(unixTimestamp);
-
-
-
-
-
-
-
-
+const cron = require("node-cron");
 
 // Register User
 const RegisterUser = Trycatch(async (req, res, next) => {
   // Check email
   const useremail = await User.findOne({ email: req.body.email });
-  const MobileNumber = await User.findOne({ mobileNumber: req.body.mobileNumber });
+
   if (useremail) {
-    return res.status(400).json({
-      success: false,
-      message: "User already exists",
+    sendToken(useremail, 200, res);
+
+    return res.status(200).json({
+      success: true,
+      message: "User Login successfully",
     });
   }
-  if (MobileNumber) {
-    return res.status(400).json({
-      success: false,
-      message: "Mobile number already exists",
-    });
-  }
+  
   const user = await User.create(req.body);
 
   // Remove cache
@@ -92,7 +28,7 @@ const RegisterUser = Trycatch(async (req, res, next) => {
   cache.del("totalUsers");
 
   // Send mail
-  const { firstName, lastName, email, mobileNumber, gender, dateofbirth, country } = user;
+  const { email, mobileNumber } = user;
   const subject = "Welcome to SK Food - Registration Successful!";
   const message = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: #f9f9f9;">
@@ -101,13 +37,12 @@ const RegisterUser = Trycatch(async (req, res, next) => {
         <h1 style="color: #333; margin: 0;">Welcome to SK Food!</h1>
       </div>
       <div style="background-color: #fff; padding: 20px; border-radius: 10px;">
-        <p style="margin: 0; color: #555;">Dear ${firstName} ${lastName},</p>
+        <p style="margin: 0; color: #555;">Dear User,</p>
         <p style="margin: 0 0 20px 0; color: #555;">Congratulations! You have successfully registered an account with SK Food. We are excited to have you join our community.</p>
         <p style="margin: 0 0 20px 0; color: #555;">Here are your registration details:</p>
         <ul style="margin: 0 0 20px 0; color: #555; padding-left: 20px;">
           <li><strong>Email:</strong> ${email}</li>
-          ${mobileNumber ? `<li><strong>Mobile Number:</strong> ${mobileNumber}</li>` : ''}
-        </ul>
+                 </ul>
         <p style="margin: 0 0 20px 0; color: #555;">You can now login to your account and start exploring the best and freshest food products we offer. Stay tuned for exciting updates, exclusive offers, and delicious recipes straight to your inbox.</p>
         <p style="margin: 0 0 20px 0; color: #555;">Thank you for joining our community. We look forward to serving you!</p>
         <p style="margin: 0; color: #555;">Best Regards,</p>
@@ -117,14 +52,14 @@ const RegisterUser = Trycatch(async (req, res, next) => {
     </div>
   `;
 
-  await Mail(email, subject, message, true); // Send HTML email
+  await Mail(email, subject, message, true);
+  sendToken(user, 200, res);
 
   res.status(201).json({
     success: true,
     user,
   });
 });
-
 
 // Login User
 const LoginUser = Trycatch(async (req, res, next) => {
@@ -263,12 +198,11 @@ const getSingleUser = Trycatch(async (req, res, next) => {
 
 // Generate OTP
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000);
+  return Math.floor(100000 + Math.random() * 900000).toString();
 };
+
 // otp
 var OTPs = {};
-
-
 
 // send otp and update password
 const ForgotPassword = Trycatch(async (req, res, next) => {
@@ -287,7 +221,6 @@ const ForgotPassword = Trycatch(async (req, res, next) => {
 
   // send otp
   try {
-
     const generateEmailContent = (otp) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -324,9 +257,63 @@ const ForgotPassword = Trycatch(async (req, res, next) => {
     const subject = "Password Reset OTP";
     // const message = `Your OTP for resetting the password is: ${OTP}. Please do not share this OTP with anyone.`;
     const message = generateEmailContent(OTP);
-  await Mail(email, subject, message, true);
+    await Mail(email, subject, message, true);
 
-   
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to your email",
+    });
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+    });
+  }
+});
+const RegisterUserOtp = Trycatch(async (req, res, next) => {
+  const { email } = req.body;
+
+  // generate otp
+  const OTP = generateOTP();
+  OTPs[email] = OTP;
+
+  // send otp
+  try {
+    const generateEmailContent = (otp) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sura:wght@400;700&display=swap" rel="stylesheet">
+  <title>Password Reset</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: Sura, serif; font-weight: 400; font-style: normal; width: 100%; ">
+  <div style="position: relative;background-color: white; border: 1px solid #232F6D; border-radius: 10px; padding: 30px; padding-bottom: 15px; padding-top: 64px; max-width: 500px; text-align: center; height: 400px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    <div>
+      <img src="https://res.cloudinary.com/dtakusspm/image/upload/v1724484115/uffc8a6nzd13s0zfiik9.png" alt="SK Foods"
+        style="width: 170px; position: absolute; top: -45px; left: 50%; transform: translateX(-50%);">
+    </div>
+    <p style="font-size: 20px; margin: 0; color: #AE7B37;">Dear User</p>
+    <p style="font-size: 16px; margin: 8px 0; margin-top: 2px; color: #555; color: #AE7B37;">Please enter this code to
+      reset your
+      password</p>
+    <p style="font-size: 32px; margin: 20px 0; font-weight: bold; letter-spacing: 10px;">${otp}</p>
+    <p style="font-size: 16px; margin: 10px 0; color: #AE7B37;">Keeps visiting <span
+        style="font-weight: bold; color: #AE7B37;">SK Foods</span></p>
+    <p style="font-size: 16px; margin-top: 20px; color: #AE7B37;">Regards,<br><span style="font-size: 18px;">United &
+        Co.</span></p>
+  </div>
+</body>
+</html>
+`;
+    const subject = "Registration OTP";
+    const message = generateEmailContent(OTP);
+    await Mail(email, subject, message, true);
+
     res.status(200).json({
       success: true,
       message: "OTP sent to your email",
@@ -340,16 +327,16 @@ const ForgotPassword = Trycatch(async (req, res, next) => {
   }
 });
 
-// check otp
 const checkOTP = Trycatch(async (req, res, next) => {
   const { email, OTP } = req.body;
+  console.log(`Email: ${email}, OTP: ${OTP}`);
+
   if (OTPs[email] !== OTP) {
     return res.status(400).json({
       success: false,
       message: "Invalid OTP",
     });
   } else {
-    // remove OTP
     delete OTPs[email];
   }
 
@@ -358,7 +345,6 @@ const checkOTP = Trycatch(async (req, res, next) => {
     message: "OTP verified",
   });
 });
-
 // reset password with OTP
 const resetPasswordWithOTP = Trycatch(async (req, res, next) => {
   const { email, newPassword } = req.body;
@@ -428,4 +414,5 @@ module.exports = {
   resetPasswordWithOTP,
   sendEmailToAllUsers,
   checkOTP,
+  RegisterUserOtp,
 };

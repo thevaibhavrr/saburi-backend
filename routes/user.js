@@ -24,6 +24,9 @@ User.route("/get-all-users").get(auth.IsAuthenticateUser,auth.authorizeRole("adm
 // get single user
 User.route("/get-single-user/:id").get(auth.IsAuthenticateUser, Data.getSingleUser) 
 
+// regist er otps
+User.route("/register-otp").post(Data.RegisterUserOtp)
+
 // forget password
 User.route("/forgot-password").post(Data.ForgotPassword)
 // reset password with OTP

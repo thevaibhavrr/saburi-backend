@@ -14,6 +14,15 @@ const productSizeSchema = new mongoose.Schema({
     quantity: {
         type: Number,
     },
+    price: {
+        type: Number,
+    },
+    discountPercentage: {
+        type: Number,
+    },
+    FinalPrice: {
+        type: Number,
+    },
 },{
     timestamps: true,
 });

@@ -7,17 +7,14 @@ const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
     unique: [true, "Email already exists"],
     validate: [validator.isEmail, "Please enter a valid email"],
   },
   mobileNumber: {
     type: Number,
-    required: true,
     unique: [true, "Mobile number already exists"],
   },
   userImage: {
@@ -27,23 +24,12 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true, 
     select: false,
-  },
-  gender: {
-    type: String,
-  },
-  dateofbirth: {
-    type: Date,
   },
   role: {
     type: String,
     default: "user",
   },
-  country : {
-    type: String,
-    default: "India",
-  }
 });
 
 // Encrypt password
