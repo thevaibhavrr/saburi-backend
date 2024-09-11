@@ -375,10 +375,6 @@ const CreateOrderWorkingFinrONTotalProductPrice = TryCatch(
             message: "Coupon is not applicable to any products in the order",
           });
         }
-
-        console.log("Price before coupon:", totalPriceBeforeCoupon);
-        console.log("Total discount applied:", totalDiscountApplied);
-        console.log("Price after coupon:", totalPriceAfterCoupon);
       }
 
       // Add tax and shipping price

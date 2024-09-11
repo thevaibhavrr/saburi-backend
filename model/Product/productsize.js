@@ -23,6 +23,10 @@ const productSizeSchema = new mongoose.Schema({
     FinalPrice: {
         type: Number,
     },
+    IsOutOfStock: {
+        type: String,
+        default: "false",
+    },
 },{
     timestamps: true,
 });

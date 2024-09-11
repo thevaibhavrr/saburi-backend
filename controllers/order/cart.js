@@ -158,12 +158,9 @@ async function calculateTotalPriceWithCoupons(orderItems) {
   for (const orderItem of orderItems) {
     const product = await Product.findById(orderItem.productId);
     const productsize = await Productsize.findById(orderItem.size);
-    console.log("productsize",productsize) 
     
     const itemTotalPrice = orderItem.quantity * productsize.FinalPrice;
-    console.log("productsize.FinalPrice",productsize.FinalPrice, itemTotalPrice)
     const WithOurDiscount = orderItem.quantity * productsize.price;
-   console.log("WithOurDiscount",productsize.price, WithOurDiscount)
 
     processedItems.push({
       productId: product._id,

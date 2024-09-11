@@ -25,9 +25,6 @@ const CreateProduct = Trycatch(async (req, res, next) => {
         ...size,
         productId: product._id,
       });
-      console.log(size)
-
-      console.log(productSize)
       
     }
   }

@@ -1,4 +1,6 @@
 const SecondorderSchema = require("../../model/order/orders");
+const Productsize = require("../../model/Product/productsize") 
+
 const TryCatch = require("../../middleware/Trycatch");
 const Mail = require("../../utils/sendmail");
 const Cart = require("../../model/order/cart");
@@ -23,7 +25,7 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
   }
 
   // Clear the complete cart
-  await Cart.findByIdAndUpdate(CartId, { activecart: "false" });
+  // await Cart.findByIdAndUpdate(CartId, { activecart: "false" });
 
   // Send mail
   const userEmail = req.user.email;
@@ -187,7 +189,7 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
     </html>
   `;
 
-  Mail(userEmail, "Order Placed Successfully", htmlContent, true);
+  // Mail(userEmail, "Order Placed Successfully", htmlContent, true);
 
   // Update product quantities and check for out of stock
   const updatedProducts = [];
@@ -195,16 +197,22 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
   const outOfStockProducts = [];
   for (const item of cart.orderItems) {
     const product = item.productId;
-    const updatedQuantity = product.quantity - item.quantity;
+    const size = item.size;
+
+  const Orderproductsize = await Productsize.findById(size );
+  console.log("Productsize",Orderproductsize.quantity, "order quanityt", item.quantity,"leess",Orderproductsize.quantity - item.quantity);
+    
+    const updatedQuantity = Orderproductsize.quantity - item.quantity;
     const isOutOfStock = updatedQuantity <= 0 ? "true" : "false";
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      product._id,
+    const updatedProduct = await Productsize.findByIdAndUpdate(
+      size,
       { quantity: updatedQuantity, IsOutOfStock: isOutOfStock },
       { new: true }
     );
+    console.log("updatedProduct", updatedProduct);
     if (updatedQuantity < 20 && updatedQuantity > 1) {
-      lowQuantityProducts.push(updatedProduct);
+      lowQuantityProducts.push(updatedProduct); 
     }
 
     if (updatedQuantity <= 0) {
