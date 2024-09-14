@@ -25,7 +25,7 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
   }
 
   // Clear the complete cart
-  // await Cart.findByIdAndUpdate(CartId, { activecart: "false" });
+  await Cart.findByIdAndUpdate(CartId, { activecart: "false" });
 
   // Send mail
   const userEmail = req.user.email;
@@ -226,7 +226,7 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
     let lowQuantityMessage =
       "<p>Some products are running low on quantity. Please check your inventory:</p><ul>";
     lowQuantityProducts.forEach((product) => {
-      lowQuantityMessage += `<li>${product.name} : <br/> quantity : ${product.quantity} </li> <img loading="lazy" src="${product.thumbnail}" alt="${product.name}" style="max-width: 100px;">`;
+      lowQuantityMessage += `<li>${product.name} : <br/> quantity : ${Orderproductsize.quantity} </li> <img loading="lazy" src="${product.thumbnail}" alt="${product.name}" style="max-width: 100px;">`;
     });
     lowQuantityMessage += "</ul>";
 
@@ -326,9 +326,16 @@ const GetMySecondOrder = TryCatch(async (req, res, next) => {
         model: "product",
       },
     })
+    .populate({
+      path: "CartId",
+      populate: {
+        path: "orderItems.size",
+        select: "size sizetype",
+      },
+    })
     .populate("shippingAddress")
     .populate("billingAddress")
-    .populate("userId");
+    .populate("userId")
 
   const secondorders = data.reverse();
 
@@ -351,6 +358,13 @@ const GetSecondOrderById = TryCatch(async (req, res, next) => {
       populate: {
         path: "orderItems.productId",
         model: "product",
+      },
+    })
+    .populate({
+      path: "CartId",
+      populate: {
+        path: "orderItems.size",
+        select: "size sizetype",
       },
     })
     .populate("shippingAddress")
@@ -385,6 +399,13 @@ const GetAllsecondOrders = TryCatch(async (req, res, next) => {
       populate: {
         path: "orderItems.productId",
         model: "product",
+      },
+    })
+    .populate({
+      path: "CartId",
+      populate: {
+        path: "orderItems.size",
+        select: "size sizetype",
       },
     })
     .populate("shippingAddress")
