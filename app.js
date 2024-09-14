@@ -14,6 +14,8 @@ const Cart = require("./routes/cart");
 const SecondOrder = require("./routes/SecondOrder");
 const cookieParser = require("cookie-parser");   
 const Banner = require("./routes/offer");
+
+const Razorpay = require("./routes/razopay");
 const axios = require("axios");
 // define app using express
 const app = express();
@@ -38,7 +40,8 @@ app.use(
   Subscribe,
   Cart,
   SecondOrder,
-  Banner
+  Banner,
+  Razorpay
 );
 
 // default route
