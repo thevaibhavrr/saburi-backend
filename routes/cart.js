@@ -19,6 +19,11 @@ Cart.route("/remove-from-cart").post(
   auth.IsAuthenticateUser,
   Data.RemoveFromCart
 );
+// DeleteProductFromCart
+Cart.route("/delete-product-from-cart").post(
+  auth.IsAuthenticateUser,
+  Data.DeleteProductFromCart
+);
 
 // exports
 module.exports = Cart;

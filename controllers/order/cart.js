@@ -296,8 +296,8 @@ const GetCart = async (req, res) => {
 // Controller function to reduce the quantity of a product in the cart
 const RemoveFromCart = TryCatch(async (req, res) => {
   const { productId, selectProductSize } = req.body;
+
   const userId = req.user.id;
-  const productsize = await Productsize.findById(selectProductSize);
   try {
     // Find the cart for the logged-in user
     let cart = await Cart.findOne({ userId, activecart: "true" });
@@ -309,10 +309,6 @@ const RemoveFromCart = TryCatch(async (req, res) => {
       });
     }
 
-    // Find the index of the product in the cart
-    // const productIndex = cart.orderItems.findIndex(
-    //   (item) => item.productId.toString() === productId
-    // );
     const productIndex = cart.orderItems.findIndex((item) => {
       return (
         item.productId.toString() === productId.toString() &&
@@ -320,13 +316,7 @@ const RemoveFromCart = TryCatch(async (req, res) => {
       );
     });
 
-    // if (productIndex === -1) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Product not found in the cart.",
-    //   });
-    // }
-
+  
     // Decrease the quantity of the product in the cart
     cart.orderItems[productIndex].quantity -= 1;
 
@@ -347,18 +337,11 @@ const RemoveFromCart = TryCatch(async (req, res) => {
       (total, item) => total + item.WithOurDiscount,
       0
     );
-    // const priceAfterAddingTax = totalProductPrice * 1.05;
 
     // Update cart details
     cart.orderItems = processedItems;
     cart.totalPriceWithoutDiscount = PriceWithoutDiscount;
     cart.totalPrice = totalProductPrice;
-
-    // cart.taxPrice = 1.05;
-    // cart.totalPrice = priceAfterAddingTax;
-    // cart.Iscoupanapplied = false;
-    // cart.TotalProductPrice = totalProductPrice;
-
 
     // Save the updated cart
     await cart.save();
@@ -377,6 +360,75 @@ const RemoveFromCart = TryCatch(async (req, res) => {
     });
   }
 });
+
+// Controller function to remove a complete product from the cart
+const DeleteProductFromCart = TryCatch(async (req, res) => {
+  const { productId, selectProductSize , productQuantity } = req.body;
+  const userId = req.user.id;
+  try {
+    // Find the cart for the logged-in user
+    let cart = await Cart.findOne({ userId, activecart: "true" });
+
+    if (!cart) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart not found for the user.",
+      });
+    }
+
+    const productIndex = cart.orderItems.findIndex((item) => {
+      return (
+        item.productId.toString() === productId.toString() &&
+        item.size.toString() === selectProductSize.toString()
+      );
+    });
+
+  
+    // Decrease the quantity of the product in the cart
+    cart.orderItems[productIndex].quantity -= productQuantity;
+
+    // If quantity becomes zero, remove the product from the cart
+    if (cart.orderItems[productIndex].quantity === 0) {
+      cart.orderItems.splice(productIndex, 1);
+    }
+
+    // Recalculate cart details
+    const processedItems = await calculateTotalPriceWithCoupons(
+      cart.orderItems    );
+
+    const totalProductPrice = processedItems.reduce(
+      (total, item) => total + item.totalPrice,
+      0
+    );
+    const PriceWithoutDiscount = processedItems.reduce(
+      (total, item) => total + item.WithOurDiscount,
+      0
+    );
+
+    // Update cart details
+    cart.orderItems = processedItems;
+    cart.totalPriceWithoutDiscount = PriceWithoutDiscount;
+    cart.totalPrice = totalProductPrice;
+
+    // Save the updated cart
+    await cart.save();
+
+    // Send success response with updated cart
+    res.status(200).json({
+      success: true,
+      message: "Cart updated successfully.",
+      cart,
+    });
+  } catch (error) {
+    // Handle errors when updating cart
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+
 // export
 module.exports = { 
   addToCart,
@@ -384,6 +436,7 @@ module.exports = {
   RemoveFromCart,
   ApplyCoupon,
   RemoveCoupon,
+  DeleteProductFromCart
 };
 
 
