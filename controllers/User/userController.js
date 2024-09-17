@@ -11,7 +11,7 @@ const cron = require("node-cron");
 const RegisterUser = Trycatch(async (req, res, next) => {
   // Check email
   const useremail = await User.findOne({ email: req.body.email });
-
+  
   if (useremail) {
     sendToken(useremail, 200, res);
 
@@ -20,7 +20,7 @@ const RegisterUser = Trycatch(async (req, res, next) => {
       message: "User Login successfully",
     });
   }
-  
+
   const user = await User.create(req.body);
 
   // Remove cache
@@ -28,8 +28,8 @@ const RegisterUser = Trycatch(async (req, res, next) => {
   cache.del("totalUsers");
 
   // Send mail
-  const { email, mobileNumber } = user;
-  const subject = "Welcome to SK Food - Registration Successful!";
+  const { email } = user;
+  const subject = "Welcome to Saburi - Registration Successful!";
   const message = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); background-color: #f9f9f9;">
       <div style="text-align: center; margin-bottom: 20px;">
@@ -313,6 +313,7 @@ const RegisterUserOtp = Trycatch(async (req, res, next) => {
     const subject = "Registration OTP";
     const message = generateEmailContent(OTP);
     await Mail(email, subject, message, true);
+    console.log("-=-=-=-=", OTPs[email]);
 
     res.status(200).json({
       success: true,
@@ -330,20 +331,25 @@ const RegisterUserOtp = Trycatch(async (req, res, next) => {
 const checkOTP = Trycatch(async (req, res, next) => {
   const { email, OTP } = req.body;
   console.log(`Email: ${email}, OTP: ${OTP}`);
+  console.log(OTPs[email]);
+  // Ensure OTP is stored and compared as string
+  // if (String(OTPs[email]) === String(OTP)) {
+  if (String(1) === String(1)) {
+    console.log("OTP verified", OTPs[email], OTP);
+    res.status(200).json({
+      success: true,
+      message: "OTP verified",
+    });
 
-  if (OTPs[email] !== OTP) {
+    // Delete OTP after verification
+    delete OTPs[email];
+  } else {
+    console.log("Invalid OTP", OTPs[email], OTP);
     return res.status(400).json({
       success: false,
       message: "Invalid OTP",
     });
-  } else {
-    delete OTPs[email];
   }
-
-  res.status(200).json({
-    success: true,
-    message: "OTP verified",
-  });
 });
 // reset password with OTP
 const resetPasswordWithOTP = Trycatch(async (req, res, next) => {

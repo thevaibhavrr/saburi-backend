@@ -10,12 +10,12 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    unique: [true, "Email already exists"],
+    // unique: [true, "Email already exists"],
     validate: [validator.isEmail, "Please enter a valid email"],
   },
-  mobileNumber: {
+  Number: {
     type: Number,
-    unique: [true, "Mobile number already exists"],
+    // unique: [true, "Mobile number already exists"],
   },
   userImage: {
     type: String,
