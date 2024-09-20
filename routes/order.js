@@ -6,12 +6,13 @@ const Order = express.Router();
 // create order
 Order.route("/create-order").post(auth.IsAuthenticateUser,data.CreateOrder)
 
+
 // get my order
 Order.route("/get-my-order").get(auth.IsAuthenticateUser,data.GetMyOrder)
 
 // get order by id
 Order.route("/get-order-by-id/:id").get(auth.IsAuthenticateUser,data.GetOrderById)
-
+ 
 // update order by id
 Order.route("/update-order-by-id/:id").put(auth.IsAuthenticateUser,data.UpdateOrderById)
 

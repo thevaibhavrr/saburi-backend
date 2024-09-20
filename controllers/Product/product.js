@@ -52,7 +52,7 @@ const GetAllProducts = Trycatch(async (req, res, next) => {
   minPrice = minPrice ? Number(minPrice) : 0;
   maxPrice = maxPrice ? Number(maxPrice) : 1000000000;
 
-  console.log(minPrice,  maxPrice);
+ 
   // result per page
   const resultPerPage = perPageData ? perPageData : 50;
 
