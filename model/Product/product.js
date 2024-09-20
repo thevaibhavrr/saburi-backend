@@ -19,21 +19,20 @@ const productSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  price: {
-    type: Number,
-    required: true,
-  },
-  PriceAfterDiscount: {
-    type: Number,
-  },
+  // price: {
+  //   type: Number,
+  // },
+  // PriceAfterDiscount: {
+  //   type: Number,
+  // },
 
-  discountPercentage: {
-    type: Number,
-  },
-  quantity: {
-    type: Number,
-    default: 1,
-  },
+  // discountPercentage: {
+  //   type: Number,
+  // },
+  // quantity: {
+  //   type: Number,
+  //   default: 1,
+  // },
   image: [
     {
       type: String,

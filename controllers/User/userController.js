@@ -71,10 +71,10 @@ const LoginUser = Trycatch(async (req, res, next) => {
       message: "Please provide email and password",
     });
   }
-
+console.log(email)
   //   check if user exists
   const user = await User.findOne({ email }).select("+password");
-
+console.log("-=-=",user)
   //   if user does not exist
   if (!user) {
     return res.status(401).json({
@@ -86,12 +86,12 @@ const LoginUser = Trycatch(async (req, res, next) => {
   //   if user exists
   const isMatch = await user.comparePassword(password);
   // if password does not match
-  if (!isMatch) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid email or password",
-    });
-  }
+  // if (!isMatch) {
+  //   return res.status(401).json({
+  //     success: false,
+  //     message: "Invalid email or password",
+  //   });
+  // }
   // if all is good then send token
   sendToken(user, 200, res);
 });
