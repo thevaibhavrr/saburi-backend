@@ -3,30 +3,38 @@ const Product = require("../../model/Product/product");
 const Trycatch = require("../../middleware/Trycatch");
 // update product
 const UpdateProductsize = Trycatch(async (req, res, next) => {
+  const productsize = await Productsize.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
+  // Check if the product size quantity is more than 0
+  if (productsize.quantity > 0) {
+    productsize.IsOutOfStock = "false";
+  } else {
+    productsize.IsOutOfStock = "true";
+  }
 
-    const productsize = await Productsize.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
+  // Save the updated product size
+  await productsize.save();
 
-    //   IsOutOfStock: {
-    //     type: String,
-    //     default: "false",
-    // },
+  // Check the stock status of all sizes of the product
+  const allSizes = await Productsize.find({ productId: productsize.productId });
 
-      // product quantity is more then 0 then  IsOutOfStock will be false
-      if (productsize.quantity > 0) {
-        productsize.IsOutOfStock = "false";
-      }
+  // Check if any size is in stock
+  const anySizeInStock = allSizes.some(size => size.IsOutOfStock === "false");
 
-      await productsize.save();
+  // Update the product's IsOutOfStock status
+  await Product.findByIdAndUpdate(productsize.productId, {
+    IsOutOfStock: anySizeInStock ? "false" : "true",
+  });
 
-      res.status(200).json({
-        success: true,
-        productsize,
-      });
+  res.status(200).json({
+    success: true,
+    productsize,
+  });
 });
+
 
 // delete 
  const DeleteProductsize = Trycatch(async (req, res, next) => {

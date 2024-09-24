@@ -2,8 +2,6 @@ const Product = require("../../model/Product/product");
 const ProductSize = require("../../model/Product/productsize");
 const Trycatch = require("../../middleware/Trycatch");
 const ApiFeatures = require("../../utils/apifeature");
-const NodeCache = require("node-cache");
-const cache = new NodeCache();
 
 
 const CreateProduct = Trycatch(async (req, res, next) => {
@@ -246,13 +244,17 @@ const UpdateProduct = Trycatch(async (req, res, next) => {
       useFindAndModify: false,
     }
   );
+  const productSizes = await ProductSize.find({ productId: updatedProduct._id });
+  const allSizesOutOfStock = productSizes.every(size => size.IsOutOfStock === "true");
+
+  updatedProduct.IsOutOfStock = allSizesOutOfStock ? "true" : "false";
 
   // Check if quantity is greater than 0
-  if (updatedProduct.quantity > 0) {
-    updatedProduct.IsOutOfStock = "false";
-  } else {
-    updatedProduct.IsOutOfStock = "true";
-  }
+  // if (updatedProduct.quantity > 0) {
+  //   updatedProduct.IsOutOfStock = "false";
+  // } else {
+  //   updatedProduct.IsOutOfStock = "true";
+  // }
 
   // Save the updated product with IsOutOfStock updated
   const product = await updatedProduct.save();

@@ -19,20 +19,6 @@ const productSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  // price: {
-  //   type: Number,
-  // },
-  // PriceAfterDiscount: {
-  //   type: Number,
-  // },
-
-  // discountPercentage: {
-  //   type: Number,
-  // },
-  // quantity: {
-  //   type: Number,
-  //   default: 1,
-  // },
   image: [
     {
       type: String,
@@ -42,7 +28,6 @@ const productSchema = new mongoose.Schema({
   ],
   thumbnail: {
     type: String,
-    // required: true,
     default:
       "https://www.dentee.com/buy/content/images/thumbs/default-image_450.png",
   },
