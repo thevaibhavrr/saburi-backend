@@ -12,7 +12,7 @@ const UpdateProductsize = Trycatch(async (req, res, next) => {
   if (productsize.quantity > 0) {
     productsize.IsOutOfStock = "false";
   } else {
-    productsize.IsOutOfStock = "true";
+    productsize.IsOutOfStock = "true"; 
   }
 
   // Save the updated product size
