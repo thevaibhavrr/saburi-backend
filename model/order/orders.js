@@ -120,6 +120,7 @@ const SecondorderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+ 
   // Cart Reference
   CartId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -190,9 +191,24 @@ const SecondorderSchema = new mongoose.Schema({
     update_time: String,
     email_address: String,
   },
+  UserIp: {
+    type: String,
+  },
+  UserContact: {
+    type: String,
+  },
+  DeviceType: {
+    type: String,
+  },
   paymentId: {
     type: String,
     default: null,
+  },
+  User_Location:{
+    type: String,
+  },
+  Geolocation: {
+    type: String,
   },
   paymentConfirmation: {
     type: Boolean,
@@ -203,6 +219,9 @@ const SecondorderSchema = new mongoose.Schema({
   },
   paymentDoneAt: {
     type: Date,
+  },
+  orderfromURL: {
+    type: String,
   },
 
   // Other Information

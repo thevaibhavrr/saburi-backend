@@ -11,7 +11,7 @@ const RazorpayData = require("../order/razorpay/razorpayController");
 
 const CreateSecondOrder = TryCatch(async (req, res, next) => {
   const userId = req.user.id;
-  const { CartId, paymentMethod, paymentId, paymentorderCratedAt,currency } = req.body;
+  const { CartId, paymentMethod, paymentId, paymentorderCratedAt,currency ,paymentDoneAt,DeviceType } = req.body;
 
   // Create the second order
   const secondorder = await SecondorderSchema.create({
@@ -23,7 +23,8 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
     paymentId: paymentId || null,
     paymentorderCratedAt: paymentorderCratedAt,
     currency: currency,
-
+    paymentDoneAt,
+    DeviceType 
   });
 
   // Extract order items from the cart
