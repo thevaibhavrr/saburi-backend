@@ -50,4 +50,4 @@ const Getpaymentdetailsbyorderid = async (req, res) => {
   }
 };
 
-module.exports = { CreateRazorpayOrder, Getpaymentdetailsbyorderid };
+module.exports = { CreateRazorpayOrder, Getpaymentdetailsbyorderid }; 

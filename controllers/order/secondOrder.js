@@ -24,7 +24,7 @@ const CreateSecondOrder = TryCatch(async (req, res, next) => {
     paymentorderCratedAt: paymentorderCratedAt,
     currency: currency,
     paymentDoneAt,
-    DeviceType 
+    DeviceType  
   });
 
   // Extract order items from the cart
@@ -282,6 +282,6 @@ module.exports = {
   GetSecondOrderById,
   GetAllsecondOrders,
   UpdateSecondOrder,
-  CreateRazorpayOrder: RazorpayData.CreateRazorpayOrder,
-  Getpaymentdetailsbyorderid: RazorpayData.Getpaymentdetailsbyorderid,
+  // CreateRazorpayOrder: RazorpayData.CreateRazorpayOrder,
+  // Getpaymentdetailsbyorderid: RazorpayData.Getpaymentdetailsbyorderid,
 };
